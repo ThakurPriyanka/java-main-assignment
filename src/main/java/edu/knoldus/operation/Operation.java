@@ -127,29 +127,4 @@ public class Operation {
             return latestTweets;
         });
     }
-
-    public CompletableFuture<List<Status>> getWith15Min() {
-        return CompletableFuture.supplyAsync(() -> {
-            List<Status> latestTweets = new ArrayList<>();
-            try {
-                String hashTag = "modi";
-                LocalDateTime sinceDate = LocalDateTime.of(2018, 03, 10, 05,22,50);
-                LocalDateTime untilDate = LocalDateTime.of(2018, 03, 10, 05,37,00);
-
-                Integer count = 100;
-                Query query = new Query(hashTag);
-                query.setSince(sinceDate.toString());
-                query.setUntil(untilDate.toString());
-                query.setCount(count);
-
-                query.resultType(Query.RECENT);
-                QueryResult queryResult = this.twitter.search(query);
-                latestTweets.addAll(queryResult.getTweets());
-                System.out.println("number of tweets on given date are : " + latestTweets.size());
-            } catch (TwitterException e) {
-                e.printStackTrace();
-            }
-            return latestTweets;
-        });
-    }
 }

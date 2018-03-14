@@ -25,10 +25,8 @@ public class Application {
 //
 //            CompletableFuture<List<Status>> resultTotalLike = twitterobject.getTotalLike();
 //            resultTotalLike.thenAccept(tweets -> tweets.forEach(System.out::println));
-//            CompletableFuture<List<Status>> resultDate = twitterobject.getForDate();
-//            resultDate.thenAccept(tweets -> tweets.forEach(System.out::println));
-            CompletableFuture<List<Status>> resultOf15min = twitterobject.getWith15Min();
-            resultOf15min.thenAccept(tweets -> tweets.forEach(System.out::println));
+            CompletableFuture<List<Status>> resultDate = twitterobject.getForDate();
+            resultDate.thenAccept(tweets -> tweets.forEach(System.out::println));
             Thread.sleep(10000);
         }
         catch (InterruptedException e) {
