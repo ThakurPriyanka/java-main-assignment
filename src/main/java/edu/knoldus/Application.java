@@ -20,10 +20,10 @@ public class Application {
 //            resultTweet.thenAccept(tweets -> tweets.forEach(System.out::println));
 //            CompletableFuture<List<Status>> resultOldNew = twitterobject.getTweetWithNewerToOlder();
 //            resultOldNew.thenAccept(tweets -> tweets.forEach(System.out::println));
-//            CompletableFuture<List<Status>> resultRetweet = twitterobject.getRetweetCount();
+//            CompletableFuture<Stream<Integer>> resultRetweet = twitterobject.getRetweetCount();
 //            resultRetweet.thenAccept(tweets -> tweets.forEach(System.out::println));
 //
-//            CompletableFuture<List<Status>> resultTotalLike = twitterobject.getTotalLike();
+//            CompletableFuture<Stream<Integer>> resultTotalLike = twitterobject.getTotalLike();
 //            resultTotalLike.thenAccept(tweets -> tweets.forEach(System.out::println));
             CompletableFuture<List<Status>> resultDate = twitterobject.getForDate();
             resultDate.thenAccept(tweets -> tweets.forEach(System.out::println));

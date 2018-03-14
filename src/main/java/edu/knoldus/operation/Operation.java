@@ -66,47 +66,63 @@ public class Operation {
             return latestTweets;
         });
     }
-    public CompletableFuture<List<Status>> getRetweetCount() {
+
+    /**
+     *
+     * @return list of likes from higher to lower
+     */
+    public CompletableFuture<Stream<Integer>> getRetweetCount() {
         return CompletableFuture.supplyAsync(() -> {
-            List<Status> latestTweets = new ArrayList<>();
+            Stream<Integer> tweetData = null;
+            try {
+                Query query = new Query("modi");
+                QueryResult result;
+                do {
+                    result = twitter.search(query);
+                    result.getTweets().sort((statusFirst, statusSecond) ->
+                           statusSecond.getRetweetCount() - statusFirst.getRetweetCount());
+                    List<Status> tweets = result.getTweets();
+                    tweetData = tweets.stream().map(tweet -> tweet.getRetweetCount());
+                    System.out.println(tweetData);
+                    return tweetData;
+                }while ((query = result.nextQuery()) != null);
+            } catch (TwitterException te) {
+                System.out.println(te.getMessage());
+            }
+            return tweetData;
+        });
+
+    }
+
+    /**
+     * @return list of favorite tweet in descending order
+     */
+
+    public CompletableFuture<Stream<Integer>> getTotalLike() {
+        return CompletableFuture.supplyAsync(() -> {
+            Stream<Integer>  tweetData = null;
             try {
                 String hashTag = "modi";
                 Integer count = 100;
                 Query query = new Query(hashTag);
                 query.setCount(count);
                 query.resultType(Query.RECENT);
-                    QueryResult queryResult = this.twitter.search(query);
-                    queryResult.getTweets().sort((statusFirst, statusSecond) ->
-                            statusSecond.getRetweetCount() - statusFirst.getRetweetCount());
-                    latestTweets.addAll(queryResult.getTweets());
-                } catch (TwitterException e) {
-                    System.out.println("error occured " + e.getMessage());
-                }
-                return latestTweets;
-            });
-}
-
-
-    public CompletableFuture<List<Status>> getTotalLike() {
-        return CompletableFuture.supplyAsync(() -> {
-            List<Status> latestTweets = new ArrayList<>();
-            try {
-                String hashTag = "modi";
-                Integer count = 100;
-                Query query = new Query(hashTag);
-                query.setCount(count);
-                query.resultType(Query.RECENT);
-                QueryResult queryResult = this.twitter.search(query);
-                queryResult.getTweets().sort((firstStatus, secondStatus) ->
+                QueryResult result = this.twitter.search(query);
+                result.getTweets().sort((firstStatus, secondStatus) ->
                         secondStatus.getFavoriteCount() - firstStatus.getFavoriteCount());
-                latestTweets.addAll(queryResult.getTweets());
+                List<Status> tweets = result.getTweets();
+                tweetData = tweets.stream().map(tweet -> tweet.getFavoriteCount());
             } catch (TwitterException e) {
                 e.printStackTrace();
             }
-            return latestTweets;
+            return  tweetData;
         });
     }
 
+    /**
+     *
+     * @return list of tweet for a given date
+     */
     public CompletableFuture<List<Status>> getForDate() {
         return CompletableFuture.supplyAsync(() -> {
             List<Status> latestTweets = new ArrayList<>();
@@ -120,7 +136,6 @@ public class Operation {
                 query.resultType(Query.RECENT);
                 QueryResult queryResult = this.twitter.search(query);
                 latestTweets.addAll(queryResult.getTweets());
-                System.out.println("number of tweets on given date are : " + latestTweets.size());
             } catch (TwitterException e) {
                 e.printStackTrace();
             }
