@@ -1,6 +1,11 @@
 package edu.knoldus.operation;
 
-import twitter4j.*;
+
+import twitter4j.Query;
+import twitter4j.QueryResult;
+import twitter4j.Status;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,6 +21,11 @@ public class Operation {
     public Operation(Twitter twitter) {
         this.twitter = twitter;
     }
+
+    /**
+     *
+     * @return . get tweet with in limit
+     */
 
     public CompletableFuture<Stream<String>> getTweetWithLimit() {
         return CompletableFuture.supplyAsync(() -> {
@@ -35,16 +45,12 @@ public class Operation {
                         System.out.println(tweet.getCreatedAt());
                         return tweet.getText();
                     });
-                    System.out.println(tweetData);
-                    return tweetData;
                 } while ((query = result.nextQuery()) != null);
             } catch (TwitterException te) {
                 System.out.println(te.getMessage());
             }
             return tweetData;
         });
-
-
     }
 
     public CompletableFuture<List<Status>> getTweetWithNewerToOlder() {
@@ -68,39 +74,35 @@ public class Operation {
     }
 
     /**
-     *
-     * @return list of likes from higher to lower
+     * @return . list of likes from higher to lower
      */
-    public CompletableFuture<Stream<Integer>> getRetweetCount() {
+    public CompletableFuture<List<Status>> getRetweetCount() {
         return CompletableFuture.supplyAsync(() -> {
-            Stream<Integer> tweetData = null;
+            List<Status> latestTweets = new ArrayList<>();
             try {
                 Query query = new Query("modi");
                 QueryResult result;
                 do {
                     result = twitter.search(query);
                     result.getTweets().sort((statusFirst, statusSecond) ->
-                           statusSecond.getRetweetCount() - statusFirst.getRetweetCount());
-                    List<Status> tweets = result.getTweets();
-                    tweetData = tweets.stream().map(tweet -> tweet.getRetweetCount());
-                    System.out.println(tweetData);
-                    return tweetData;
-                }while ((query = result.nextQuery()) != null);
+                            statusSecond.getRetweetCount() - statusFirst.getRetweetCount());
+                    latestTweets.addAll(result.getTweets());
+                } while ((query = result.nextQuery()) != null);
             } catch (TwitterException te) {
                 System.out.println(te.getMessage());
             }
-            return tweetData;
+            return latestTweets;
         });
 
     }
 
     /**
-     * @return list of favorite tweet in descending order
+     * @return . list of favorite tweet in descending order
      */
 
-    public CompletableFuture<Stream<Integer>> getTotalLike() {
+    public CompletableFuture<List<Status>> getTotalLike() {
         return CompletableFuture.supplyAsync(() -> {
-            Stream<Integer>  tweetData = null;
+            List<Status> latestTweets = new ArrayList<>();
             try {
                 String hashTag = "modi";
                 Integer count = 100;
@@ -110,18 +112,16 @@ public class Operation {
                 QueryResult result = this.twitter.search(query);
                 result.getTweets().sort((firstStatus, secondStatus) ->
                         secondStatus.getFavoriteCount() - firstStatus.getFavoriteCount());
-                List<Status> tweets = result.getTweets();
-                tweetData = tweets.stream().map(tweet -> tweet.getFavoriteCount());
+                latestTweets.addAll(result.getTweets());
             } catch (TwitterException e) {
                 e.printStackTrace();
             }
-            return  tweetData;
+            return latestTweets;
         });
     }
 
     /**
-     *
-     * @return list of tweet for a given date
+     * @return . list of tweet for a given date
      */
     public CompletableFuture<List<Status>> getForDate() {
         return CompletableFuture.supplyAsync(() -> {
